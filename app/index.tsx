@@ -16,6 +16,20 @@ type ToDoType ={
 
 export default function Index() {
 
+   useEffect(() => {
+    const getTodos = async() => {
+      try{
+        const todos = await AsyncStorage.getItem("my-todo");
+        if(todos !== null){
+          setToDos(JSON.parse(todos));
+        }
+      }catch(error) {
+        console.log(error);
+      }
+    };
+    getTodos();
+  }, []);
+
   const addTodo = async () => {
     try{
       const newTodo = {
@@ -33,81 +47,81 @@ export default function Index() {
     }
   }
 
-  const todoData = [
-    {
-      id:1, 
-      // user_id:"",
-      title:"Todo 1",
-      // description:"this is about todo 1",
-      is_completed:true,
-      // created_at:"",
-    },
-    {
-      id:2, 
-      // user_id:"",
-      title:"Todo 2",
-      // description:"this is about todo 1",
-      is_completed:false,
-      // created_at:"",
-    },
-    {
-      id:3, 
-      // user_id:"",
-      title:"Todo 3",
-      // description:"this is about todo 1",
-      is_completed:false,
-      // created_at:"",
-    },
-    {
-      id:4, 
-      // user_id:"",
-      title:"Todo 4",
-      // description:"this is about todo 1",
-      is_completed:false,
-      // created_at:"",
-    },
-    {
-      id:5, 
-      // user_id:"",
-      title:"Todo 5",
-      // description:"this is about todo 1",
-      is_completed:false,
-      // created_at:"",
-    },
-    {
-      id:6, 
-      // user_id:"",
-      title:"Todo 6",
-      // description:"this is about todo 1",
-      is_completed:false,
-      // created_at:"",
-    },
-    {
-      id:7, 
-      // user_id:"",
-      title:"Todo 7",
-      // description:"this is about todo 1",
-      is_completed:false,
-      // created_at:"",
-    },
-  ];
+  // const todoData = [
+  //   {
+  //     id:1, 
+  //     // user_id:"",
+  //     title:"Todo 1",
+  //     // description:"this is about todo 1",
+  //     is_completed:true,
+  //     // created_at:"",
+  //   },
+  //   {
+  //     id:2, 
+  //     // user_id:"",
+  //     title:"Todo 2",
+  //     // description:"this is about todo 1",
+  //     is_completed:false,
+  //     // created_at:"",
+  //   },
+  //   {
+  //     id:3, 
+  //     // user_id:"",
+  //     title:"Todo 3",
+  //     // description:"this is about todo 1",
+  //     is_completed:false,
+  //     // created_at:"",
+  //   },
+  //   {
+  //     id:4, 
+  //     // user_id:"",
+  //     title:"Todo 4",
+  //     // description:"this is about todo 1",
+  //     is_completed:false,
+  //     // created_at:"",
+  //   },
+  //   {
+  //     id:5, 
+  //     // user_id:"",
+  //     title:"Todo 5",
+  //     // description:"this is about todo 1",
+  //     is_completed:false,
+  //     // created_at:"",
+  //   },
+  //   {
+  //     id:6, 
+  //     // user_id:"",
+  //     title:"Todo 6",
+  //     // description:"this is about todo 1",
+  //     is_completed:false,
+  //     // created_at:"",
+  //   },
+  //   {
+  //     id:7, 
+  //     // user_id:"",
+  //     title:"Todo 7",
+  //     // description:"this is about todo 1",
+  //     is_completed:false,
+  //     // created_at:"",
+  //   },
+  // ];
 
   const [todos, setToDos] = useState<ToDoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
 
-  useEffect(() => {
-    const getTodos = async() => {
-      try{
-        const todos = await AsyncStorage.getItem("my-todo");
-        if(todos !== null){
-          setToDos(JSON.parse(todos));
-        }
-      }catch(error) {
-        console.log(error);
-      }
-    };
-    getTodos();
-  }, []);
+  const deleteTodo = async(id: number) => {
+    try{
+      const newTodos = todos.filter((todo) => todo.id !== id);
+    await AsyncStorage.setItem("my-todo", JSON.stringify(newTodos));
+    setToDos(newTodos);
+    }catch(error){
+      console.log(error);
+    }
+  } 
+
+  // const handleDone = async (id: number) => {
+
+  // }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -152,7 +166,7 @@ export default function Index() {
       <FlatList 
         data={todos} 
         keyExtractor={(item)=>item.id.toString()} 
-        renderItem={({item})=>(<ToDoItem  todo={item}/>)}
+        renderItem={({item})=>(<ToDoItem  todo={item} deleteTodo={deleteTodo}/>)}
       />
 
 
@@ -186,14 +200,18 @@ export default function Index() {
   );
 }
 
-const ToDoItem = ({todo} : {todo:ToDoType}) => (
+const ToDoItem = ({todo, deleteTodo} : {todo:ToDoType, deleteTodo:(id:number, title:string) => void}) => (
   <View style={styles.todoContainer}>
           <View style={styles.todoInfoContainer}>
             <Checkbox value={todo.is_completed}/>
             <Text style={[styles.todoText, todo.is_completed && {textDecorationLine: 'line-through'}]}>{todo.title}</Text>
           </View>
           {/* <Text style={styles.description}>{item.description}</Text> */}
-          <TouchableOpacity onPress={() => {alert('Deleted '+ todo.title);}}>
+          <TouchableOpacity 
+            onPress={() => {
+              deleteTodo(todo.id, todo.title);
+              // alert('Deleted '+ todo.title);
+              }}>
             <Ionicons 
               name="trash" 
               size={24} 
