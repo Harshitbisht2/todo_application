@@ -1,79 +1,186 @@
-import { FlatList, Text, View } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { Checkbox } from 'expo-checkbox';
+import { FlatList, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+type ToDoType ={
+  id:number;
+  // user_id:string;
+  title:string;
+  is_completed:boolean;
+  description:string;
+  created_at:string;
+}
 
 export default function Index() {
   const todoData = [
     {
       id:1, 
-      user_id:"",
+      // user_id:"",
       title:"Todo 1",
+      description:"this is about todo 1",
+      is_completed:true,
+      created_at:"",
+    },
+    {
+      id:2, 
+      // user_id:"",
+      title:"Todo 2",
       description:"this is about todo 1",
       is_completed:false,
       created_at:"",
     },
     {
-      id:1, 
-      user_id:"",
-      title:"Todo 1",
+      id:3, 
+      // user_id:"",
+      title:"Todo 3",
       description:"this is about todo 1",
       is_completed:false,
       created_at:"",
     },
     {
-      id:1, 
-      user_id:"",
-      title:"Todo 1",
+      id:4, 
+      // user_id:"",
+      title:"Todo 4",
       description:"this is about todo 1",
       is_completed:false,
       created_at:"",
     },
     {
-      id:1, 
-      user_id:"",
-      title:"Todo 1",
+      id:5, 
+      // user_id:"",
+      title:"Todo 5",
       description:"this is about todo 1",
       is_completed:false,
       created_at:"",
     },
     {
-      id:1, 
-      user_id:"",
-      title:"Todo 1",
+      id:6, 
+      // user_id:"",
+      title:"Todo 6",
       description:"this is about todo 1",
       is_completed:false,
       created_at:"",
     },
     {
-      id:1, 
-      user_id:"",
-      title:"Todo 1",
-      description:"this is about todo 1",
-      is_completed:false,
-      created_at:"",
-    },
-    {
-      id:1, 
-      user_id:"",
-      title:"Todo 1",
+      id:7, 
+      // user_id:"",
+      title:"Todo 7",
       description:"this is about todo 1",
       is_completed:false,
       created_at:"",
     },
   ]
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() =>{alert('Clicked!')}}>
+          <Ionicons name="menu" size={24} color={'#333'}/>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => {}}>
+          <Image 
+          source={{uri: "https://xsgames.co/randomusers/avatar.php?g=male"}}
+          style={{width:40, height:40, borderRadius:20}}
+          />
+        </TouchableOpacity>  
+      </View>
+      <View style={styles.searchBar}>
+        <Ionicons name="search" size={24} color={'#333'}/>
+        <TextInput placeholder="Search" placeholderTextColor='#888' clearButtonMode="always" style={styles.searchInput}/>
+      </View>
       <FlatList data={todoData} keyExtractor={(item)=>item.id.toString()} renderItem={({item})=>(
-        <View>
-          <Text>{item.title}</Text>
-          <Text>{item.description}</Text>
-        </View>
-      )}/>
+        <ToDoItem  todo={item}/>
+      )}
+      />
+      <KeyboardAvoidingView style={styles.footer} behavior="padding" keyboardVerticalOffset={10}>
+        <TextInput placeholder="Add New ToDo" placeholderTextColor='#888' style={styles.newTodoInput}/>
+        <TouchableOpacity style={styles.addButton} onPress={() => {}}>
+          <Ionicons name="add" size={34} color={'#fff'}/>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const ToDoItem = ({todo} : {todo:ToDoType}) => (
+  <View style={styles.todoContainer}>
+          <View style={styles.todoInfoContainer}>
+            <Checkbox value={todo.is_completed}/>
+            <Text style={[styles.todoText, todo.is_completed && {textDecorationLine: 'line-through'}]}>{todo.title}</Text>
+          </View>
+          {/* <Text style={styles.description}>{item.description}</Text> */}
+          <TouchableOpacity onPress={() => {alert('Deleted '+ todo.title);}}>
+            <Ionicons name="trash" size={24} color={'red'}/>
+          </TouchableOpacity>
+          
+        </View>
+)
+
+const styles = StyleSheet.create({
+  container:{
+        flex: 1,
+        paddingHorizontal:20,
+        backgroundColor:'#f5f5f5'
+  },
+  header:{
+    flexDirection:'row',
+    justifyContent:'space-between',
+    alignItems:'center',
+    marginBottom: 20,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    backgroundColor: '#c4dce057',
+    padding: 16,
+    borderRadius: 10,
+    gap: 10,
+    marginBottom:20,
+    justifyContent:'center'
+  },
+  searchInput:{
+    flex:1,
+    fontSize:16,
+    tintColor:'#111',
+    color: '#333'
+  },
+  todoContainer:{
+    flexDirection:'row',
+    backgroundColor:'#8dbad4ff',
+    justifyContent:'space-between',
+    padding:16,
+    borderRadius:10,
+    marginBottom:20
+  },
+  todoInfoContainer:{
+    flexDirection:'row',
+    gap:10,
+    alignItems:'center'
+  },
+  description:{
+    color:'#888'
+  },
+  todoText:{
+    fontSize:16,
+    color:'#333'
+  },
+  footer:{
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'space-between'
+  },
+  newTodoInput:{
+    flex:1,
+    backgroundColor: '#c4dce057',
+    padding: 16,
+    borderRadius: 10,
+    fontSize:16,
+    color:'#333',
+  },
+  addButton:{
+    backgroundColor: '#4d9bdbff',
+    padding:8,
+    borderRadius:10,
+    marginLeft:20,
+  }
+
+});
