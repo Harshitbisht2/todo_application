@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
 import { useEffect, useState } from "react";
-import { FlatList, Image, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { Alert, FlatList, Image, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type ToDoType ={
@@ -96,6 +96,11 @@ export default function Index() {
   const [oldTodos, setOldTodos] = useState<ToDoType[]>([]);
 
     const addTodo = async () => {
+      const trimmedText = todoText.trim();
+      if(trimmedText === ""){
+        Alert.alert("Empty Task", "Please enter a title for your todo.");
+        return;
+      }
     try{
       const newTodo = {
         id:Math.random(),
