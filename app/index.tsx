@@ -256,7 +256,7 @@ const ToDoItem = ({todo, deleteTodo, handleTodo} : {todo:ToDoType, deleteTodo:(i
               onValueChange={() => handleTodo(todo.id)}
               color={todo.is_completed?"#4d9bdbff":undefined}
             />
-            <Text style={[styles.todoText, todo.is_completed && {textDecorationLine: 'line-through'}]}>{todo.title}</Text>
+            <Text style={[styles.todoText, todo.is_completed && {textDecorationLine: 'line-through'}]} numberOfLines={1}>{todo.title}</Text>
 
           </View>
           {/* <Text style={styles.description}>{item.description}</Text> */}
@@ -325,14 +325,16 @@ const styles = StyleSheet.create({
   todoInfoContainer:{
     flexDirection:'row',
     gap:10,
-    alignItems:'center'
+    alignItems:'center',
+    flex:1
   },
   description:{
     color:'#888'
   },
   todoText:{
     fontSize:16,
-    color:'#333'
+    color:'#333',
+    flex:1,
   },
   footer:{
     flexDirection:'row',
