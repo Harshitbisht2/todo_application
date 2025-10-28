@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
-import { useState } from "react";
-import { FlatList, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { useEffect, useState } from "react";
+import { FlatList, Image, Keyboard, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type ToDoType ={
@@ -14,6 +15,23 @@ type ToDoType ={
 }
 
 export default function Index() {
+
+  const addTodo = async () => {
+    try{
+      const newTodo = {
+        id:Math.random(),
+        title:todoText,
+        is_completed:false
+      };
+      todos.push(newTodo);
+      setToDos(todos);
+      await AsyncStorage.setItem('my-todo', JSON.stringify(todos));
+      setTodoText("");
+      Keyboard.dismiss();
+    } catch(error){
+        console.log(error);
+    }
+  }
 
   const todoData = [
     {
@@ -74,18 +92,22 @@ export default function Index() {
     },
   ];
 
-  const [todos, setToDos] = useState<ToDoType[]>(todoData);
+  const [todos, setToDos] = useState<ToDoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
-  const addTodo = () => {
-    const newTodo = {
-      id:Math.random(),
-      title:todoText,
-      is_completed:false
+
+  useEffect(() => {
+    const getTodos = async() => {
+      try{
+        const todos = await AsyncStorage.getItem("my-todo");
+        if(todos !== null){
+          setToDos(JSON.parse(todos));
+        }
+      }catch(error) {
+        console.log(error);
+      }
     };
-    todos.push(newTodo);
-    setToDos(todos);
-    setTodoText('');
-  }
+    getTodos();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -128,7 +150,7 @@ export default function Index() {
 
 
       <FlatList 
-        data={todos.reverse()} 
+        data={todos} 
         keyExtractor={(item)=>item.id.toString()} 
         renderItem={({item})=>(<ToDoItem  todo={item}/>)}
       />
