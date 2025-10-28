@@ -11,7 +11,7 @@ type ToDoType ={
   title:string;
   is_completed:boolean;
   // description:string;
-  // created_at:string;
+  created_at:string;
 }
 
 export default function Index() {
@@ -100,7 +100,8 @@ export default function Index() {
       const newTodo = {
         id:Math.random(),
         title:todoText,
-        is_completed:false
+        is_completed:false,
+        created_at:new Date().toISOString()
       };
       todos.push(newTodo);
       setToDos(todos);
@@ -239,7 +240,7 @@ export default function Index() {
   );
 }
 
-const ToDoItem = ({todo, deleteTodo, handleTodo} : {todo:ToDoType, deleteTodo:(id:number, title:string) => void, handleTodo:(id:number) => void}) => (
+const ToDoItem = ({todo, deleteTodo, handleTodo} : {todo:ToDoType, deleteTodo:(id:number) => void, handleTodo:(id:number) => void}) => (
   
   <View style={styles.todoContainer}>
 
@@ -251,11 +252,19 @@ const ToDoItem = ({todo, deleteTodo, handleTodo} : {todo:ToDoType, deleteTodo:(i
               color={todo.is_completed?"#4d9bdbff":undefined}
             />
             <Text style={[styles.todoText, todo.is_completed && {textDecorationLine: 'line-through'}]}>{todo.title}</Text>
+
           </View>
           {/* <Text style={styles.description}>{item.description}</Text> */}
-          <TouchableOpacity 
+
+          <View style={styles.rightContainer}>
+
+            <Text style={styles.timestampText}>
+              {new Date(todo.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+            </Text>
+
+            <TouchableOpacity 
             onPress={() => {
-              deleteTodo(todo.id, todo.title);
+              deleteTodo(todo.id);
               // alert('Deleted '+ todo.title);
               }}>
             <Ionicons 
@@ -264,6 +273,9 @@ const ToDoItem = ({todo, deleteTodo, handleTodo} : {todo:ToDoType, deleteTodo:(i
               color={'red'}
             />
           </TouchableOpacity>
+
+          </View>
+          
           
         </View>
 )
@@ -335,6 +347,16 @@ const styles = StyleSheet.create({
     padding:8,
     borderRadius:10,
     marginLeft:20,
+  },
+  timestampText:{
+    fontSize:12,
+    color: '#666',
+    marginTop:4,
+  },
+  rightContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap:10,
   }
 
 });
