@@ -119,9 +119,20 @@ export default function Index() {
     }
   } 
 
-  // const handleDone = async (id: number) => {
-
-  // }
+  const handleDone = async (id: number) => {
+    try{
+      const newTodos=todos.map((todo) => {
+        if(todo.id === id) {
+          todo.is_completed = !todo.is_completed;
+        }
+        return todo;
+      });
+      await AsyncStorage.setItem("my-todo", JSON.stringify(newTodos));
+      setToDos(newTodos);
+    }catch(error){
+      console.log(error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -166,7 +177,13 @@ export default function Index() {
       <FlatList 
         data={todos} 
         keyExtractor={(item)=>item.id.toString()} 
-        renderItem={({item})=>(<ToDoItem  todo={item} deleteTodo={deleteTodo}/>)}
+        renderItem={({item})=>(
+          <ToDoItem  
+            todo={item} 
+            deleteTodo={deleteTodo} 
+            handleTodo={handleDone}
+          />
+        )}
       />
 
 
@@ -200,10 +217,17 @@ export default function Index() {
   );
 }
 
-const ToDoItem = ({todo, deleteTodo} : {todo:ToDoType, deleteTodo:(id:number, title:string) => void}) => (
+const ToDoItem = ({todo, deleteTodo, handleTodo} : {todo:ToDoType, deleteTodo:(id:number, title:string) => void, handleTodo:(id:number) => void}) => (
+  
   <View style={styles.todoContainer}>
+
           <View style={styles.todoInfoContainer}>
-            <Checkbox value={todo.is_completed}/>
+
+            <Checkbox 
+              value={todo.is_completed}
+              onValueChange={() => handleTodo(todo.id)}
+              color={todo.is_completed?"#4d9bdbff":undefined}
+            />
             <Text style={[styles.todoText, todo.is_completed && {textDecorationLine: 'line-through'}]}>{todo.title}</Text>
           </View>
           {/* <Text style={styles.description}>{item.description}</Text> */}
