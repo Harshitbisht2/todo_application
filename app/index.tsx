@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Checkbox } from 'expo-checkbox';
 import { useEffect, useState } from "react";
-import { FlatList, Image, Keyboard, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { FlatList, Image, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type ToDoType ={
@@ -22,6 +22,7 @@ export default function Index() {
         const todos = await AsyncStorage.getItem("my-todo");
         if(todos !== null){
           setToDos(JSON.parse(todos));
+          setOldTodos(JSON.parse(todos));
         }
       }catch(error) {
         console.log(error);
@@ -29,23 +30,6 @@ export default function Index() {
     };
     getTodos();
   }, []);
-
-  const addTodo = async () => {
-    try{
-      const newTodo = {
-        id:Math.random(),
-        title:todoText,
-        is_completed:false
-      };
-      todos.push(newTodo);
-      setToDos(todos);
-      await AsyncStorage.setItem('my-todo', JSON.stringify(todos));
-      setTodoText("");
-      Keyboard.dismiss();
-    } catch(error){
-        console.log(error);
-    }
-  }
 
   // const todoData = [
   //   {
@@ -108,12 +92,33 @@ export default function Index() {
 
   const [todos, setToDos] = useState<ToDoType[]>([]);
   const [todoText, setTodoText] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [oldTodos, setOldTodos] = useState<ToDoType[]>([]);
+
+    const addTodo = async () => {
+    try{
+      const newTodo = {
+        id:Math.random(),
+        title:todoText,
+        is_completed:false
+      };
+      todos.push(newTodo);
+      setToDos(todos);
+      setOldTodos(todos);
+      await AsyncStorage.setItem('my-todo', JSON.stringify(todos));
+      setTodoText("");
+      Keyboard.dismiss();
+    } catch(error){
+        console.log(error);
+    }
+  }
 
   const deleteTodo = async(id: number) => {
     try{
       const newTodos = todos.filter((todo) => todo.id !== id);
     await AsyncStorage.setItem("my-todo", JSON.stringify(newTodos));
     setToDos(newTodos);
+    setOldTodos(newTodos)
     }catch(error){
       console.log(error);
     }
@@ -129,10 +134,25 @@ export default function Index() {
       });
       await AsyncStorage.setItem("my-todo", JSON.stringify(newTodos));
       setToDos(newTodos);
+      setOldTodos(newTodos);
     }catch(error){
       console.log(error);
     }
   };
+
+  const onSearch = (query: string) => {
+    if(query == ''){
+      setToDos(oldTodos);
+    }else{
+      const filteredTodos = todos.filter((todo) => todo.title.toLowerCase().includes(query.toLowerCase())
+    );
+    setToDos(filteredTodos)
+    }
+  };
+
+  useEffect(() => {
+    onSearch(searchQuery);
+  }, [searchQuery]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -166,6 +186,8 @@ export default function Index() {
         />
         <TextInput 
         placeholder="Search" 
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
         placeholderTextColor='#888' 
         clearButtonMode="always" 
         style={styles.searchInput}
@@ -261,7 +283,9 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     backgroundColor: '#c4dce057',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: Platform.OS=== 'ios'? 16 : 8,
+    alignItems:'center',
     borderRadius: 10,
     gap: 10,
     marginBottom:20,
